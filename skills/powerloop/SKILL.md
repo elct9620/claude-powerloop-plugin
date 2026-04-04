@@ -91,29 +91,46 @@ After confirmation, compose the scheduled prompt and create the cron job.
 
 ### Compose the Scheduled Prompt
 
-Read all four reference files to build the complete prompt:
-- `references/plan-phase.md`
-- `references/execute-phase.md`
-- `references/review-phase.md`
-- `references/sample-phase.md`
-
-Replace all template variables (`<GOAL>`, `<NAME>`, `<INTERVAL>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`, `<CRON_ID>`) with the user's confirmed values.
-
-Combine into a single scheduled prompt with this structure:
+Replace template variables (`<GOAL>`, `<NAME>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. Use this compact prompt template:
 
 ```
-Read <NAME>.local.md to determine the current phase and progress.
-Based on current_phase, follow the matching phase instructions below.
+Read <NAME>.local.md for current phase and progress.
 
-[Plan Phase rules]
-[Execute Phase rules]
-[Review Phase rules]
-[Sample Phase rules]
+Goal: <GOAL>
+Execute skills: <EXECUTE_SKILLS>
+Review skills: <REVIEW_SKILLS>
+Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 
-Goal: <goal>
-Execute skills: <execute skills>
-Review skills: <review skills>
-Sample target: <N> (0 = disabled, auto-stop after Review)
+## Phase Rules
+
+### plan
+1. Scan the codebase against the goal
+2. Build or refine the progress table (| # | Item | Execute | Review | Sample | Notes |)
+3. When table is complete, set current_phase: execute
+
+### execute
+1. Pick next pending Execute item (lowest #), set to in_progress
+2. Spawn SubAgent (Sonnet) with the goal context and execute_skills
+3. Mark done/failed, append any discovered items as new rows
+4. When ALL Execute = done → set current_phase: review
+
+### review
+1. Pick 2-3 pending/failed Review items
+2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → PASS/FAIL
+3. For FAILs, spawn fixer SubAgent (Sonnet) with review_skills
+4. Track review_cycles in frontmatter; pause if > 5
+5. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
+
+### sample
+1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku)
+2. All PASS → increment sample_passes; any FAIL → freeze counter, fix with SubAgent (Sonnet)
+3. When sample_passes reaches target → completed + CronDelete(cron_id)
+
+## Constraints
+- Current session is dispatcher only — all work via SubAgents
+- Process per cycle: execute=1, review/sample=2-3 items
+- Failed items retry next cycle, skip after 3 failures
+- New discoveries: append rows with all statuses = pending
 ```
 
 ### Interval to Cron Conversion
