@@ -87,7 +87,7 @@ Wait for explicit confirmation before proceeding.
 
 ## Scheduling
 
-After confirmation, compose the scheduled prompt and create the cron job.
+After confirmation, compose the scheduled prompt, show it to the user for review, then create the cron job.
 
 ### Compose the Scheduled Prompt
 
@@ -145,6 +145,10 @@ Follow the same rules as `/loop`:
 | `Nh` | `0 */N * * *` |
 | `Nd` | `0 0 */N * *` |
 | `Ns` | round up to `ceil(N/60)m` |
+
+### Preview Prompt
+
+Display the composed prompt in a fenced code block and ask the user to confirm before scheduling. Only proceed to CronCreate after explicit approval.
 
 ### Create the Schedule
 
