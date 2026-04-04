@@ -1,0 +1,9 @@
+{
+  "name": "powerloop",
+  "version": "0.1.0",
+  "description": "Enhanced /loop with structured Plan → Execute → Review → Sample phases for stable long-running tasks",
+  "author": {
+    "name": "Aotokitsuruya",
+    "url": "https://aotoki.me"
+  }
+}
