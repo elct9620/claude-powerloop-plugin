@@ -63,13 +63,13 @@ Present a complete summary for user approval:
   ── Execute Phase ──────────────────────
   Skills:    <execute skills>
   Batch:     1 item per scheduled cycle
-  Executor:  SubAgent (Sonnet)
+  Executor:  SubAgent (Sonnet) with self-review
 
   ── Review Phase ───────────────────────
   Skills:    <review skills>
   Batch:     2-3 items per scheduled cycle
   Scanner:   SubAgent (Sonnet/Haiku) in parallel
-  Fixer:     SubAgent (Sonnet) sequential
+  Fixer:     SubAgent (Sonnet) — fixes applied, re-scanned next cycle
   Max cycles: 5 review cycles before pause
 
   ── Sample Phase ──────────────────────
@@ -106,32 +106,27 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 ### plan
 1. Scan the codebase against the goal
 2. Build or refine the progress table (| # | Item | Execute | Review | Sample | Notes |)
-3. When table is complete, set current_phase: execute
+3. Completeness check: every aspect of the goal must map to at least one item; if gaps remain, keep refining
+4. When table covers the full goal, set current_phase: execute
 
 ### execute
 1. Pick next pending Execute item (lowest #), set to in_progress
-2. Spawn SubAgent (Sonnet) with the goal context and execute_skills
-3. Mark done/failed, append any discovered items as new rows
+2. Spawn SubAgent (Sonnet) with the goal context and execute_skills — SubAgent must self-review its work before reporting back
+3. Mark done/failed based on SubAgent's self-review result, append any discovered items as new rows
 4. When ALL Execute = done → set current_phase: review
 
 ### review
 1. Pick 2-3 pending/failed Review items
-2. Scan: spawn scanner SubAgents (Sonnet/Haiku) in parallel → each must report PASS or FAIL with specific issues
+2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → each must report PASS or FAIL with specific issues
 3. PASS items → mark Review = done
-4. FAIL items → must fix before proceeding:
-   a. Spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues
-   b. Spawn verifier SubAgent (Haiku) to confirm the fix resolves the issues
-   c. Verified → mark Review = done; not verified → mark Review = failed (retry next cycle)
-5. Track review_cycles in frontmatter; pause if > 5
+4. FAIL items → spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark Review = failed
+5. Track review_cycles in frontmatter; pause if > 5 — failed items are re-scanned in the next cycle to verify fixes
 6. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
 
 ### sample
 1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku) → each must report PASS or FAIL with specific issues
 2. All PASS → increment sample_passes
-3. Any FAIL → freeze counter, then must fix before proceeding:
-   a. Spawn fixer SubAgent (Sonnet) to fix the reported issues
-   b. Spawn verifier SubAgent (Haiku) to confirm the fix resolves the issues
-   c. Verified → mark Sample = done; not verified → mark Sample = failed (retry next cycle)
+3. Any FAIL → freeze counter, spawn fixer SubAgent (Sonnet) to fix the reported issues, then mark Sample = failed — fixed items are re-scanned in the next cycle to verify
 4. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
