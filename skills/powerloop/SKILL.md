@@ -116,15 +116,22 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 
 ### review
 1. Pick 2-3 pending/failed Review items
-2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → report PASS/FAIL with specific issues
-3. For FAILs, spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark done
-4. Track review_cycles in frontmatter; pause if > 5
-5. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
+2. Scan: spawn scanner SubAgents (Sonnet/Haiku) in parallel → each must report PASS or FAIL with specific issues
+3. PASS items → mark Review = done
+4. FAIL items → must fix before proceeding:
+   a. Spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues
+   b. Spawn verifier SubAgent (Haiku) to confirm the fix resolves the issues
+   c. Verified → mark Review = done; not verified → mark Review = failed (retry next cycle)
+5. Track review_cycles in frontmatter; pause if > 5
+6. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
 
 ### sample
-1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku) → report PASS/FAIL with specific issues
+1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku) → each must report PASS or FAIL with specific issues
 2. All PASS → increment sample_passes
-3. Any FAIL → freeze counter, spawn fixer SubAgent (Sonnet) to fix the reported issues
+3. Any FAIL → freeze counter, then must fix before proceeding:
+   a. Spawn fixer SubAgent (Sonnet) to fix the reported issues
+   b. Spawn verifier SubAgent (Haiku) to confirm the fix resolves the issues
+   c. Verified → mark Sample = done; not verified → mark Sample = failed (retry next cycle)
 4. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
