@@ -116,15 +116,16 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 
 ### review
 1. Pick 2-3 pending/failed Review items
-2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → PASS/FAIL
-3. For FAILs, spawn fixer SubAgent (Sonnet) with review_skills
+2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → report PASS/FAIL with specific issues
+3. For FAILs, spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark done
 4. Track review_cycles in frontmatter; pause if > 5
 5. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
 
 ### sample
-1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku)
-2. All PASS → increment sample_passes; any FAIL → freeze counter, fix with SubAgent (Sonnet)
-3. When sample_passes reaches target → completed + CronDelete(cron_id)
+1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku) → report PASS/FAIL with specific issues
+2. All PASS → increment sample_passes
+3. Any FAIL → freeze counter, spawn fixer SubAgent (Sonnet) to fix the reported issues
+4. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
 - STOP after processing one batch — do NOT continue to the next item or cycle. Update the .local.md file and wait for the next scheduled trigger.
