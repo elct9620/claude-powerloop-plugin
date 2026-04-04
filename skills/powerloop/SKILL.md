@@ -127,8 +127,9 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 3. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
+- STOP after processing one batch — do NOT continue to the next item or cycle. Update the .local.md file and wait for the next scheduled trigger.
 - Current session is dispatcher only — all work via SubAgents
-- Process per cycle: execute=1, review/sample=2-3 items
+- One batch = execute: 1 item, review/sample: 2-3 items
 - Failed items retry next cycle, skip after 3 failures
 - New discoveries: append rows with all statuses = pending
 ```
