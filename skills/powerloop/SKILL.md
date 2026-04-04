@@ -172,22 +172,30 @@ Expiry: auto-expires after 7 days if not completed
 
 Then immediately begin the Plan phase.
 
-## Phase Reference Files
+## Progress File Format
 
-Detailed rules for each phase are in `references/`:
+Track progress in `<NAME>.local.md` at project root. The `.local.md` extension prevents accidental commits in target projects.
 
-- **`references/plan-phase.md`** — Progress table creation, status values, dynamic item discovery
-- **`references/execute-phase.md`** — SubAgent dispatch, 1 item per cycle, error handling
-- **`references/review-phase.md`** — Parallel scan + sequential fix, 2-3 items per cycle, cycle limits
-- **`references/sample-phase.md`** — Random sampling, passed counter rules, auto-stop via CronDelete
+Refer to `examples/REFACTOR.local.md` for a complete mid-execution example.
 
-## Example
+### Frontmatter Fields
 
-A sample progress file mid-execution is available at `examples/REFACTOR.local.md`. Refer to it for the expected format and status patterns.
+| Field | Description |
+|-------|-------------|
+| `goal` | The task objective |
+| `current_phase` | `plan` / `execute` / `review` / `sample` / `completed` |
+| `started_at` | ISO 8601 timestamp |
+| `interval` | Cron interval |
+| `cron_id` | Schedule ID for CronDelete |
+| `execute_skills` | Skills used in Execute phase |
+| `review_skills` | Skills used in Review/Sample phases |
+| `sample_passes` | `M/N` counter (current/target) |
+| `review_cycles` | Number of completed review rounds |
 
-## Progress File Convention
+### Status Values
 
-- File name: `<NAME>.local.md` in project root (e.g., `REFACTOR.local.md`)
-- The `.local.md` extension ensures it is not committed to version control
-- Frontmatter contains global state (phase, counters, config)
-- Table body contains per-item tracking across all phases
+- `pending` — not started
+- `in_progress` — currently being worked on
+- `done` — completed
+- `failed` — needs retry
+- `skipped` — intentionally skipped (reason in Notes)
