@@ -104,10 +104,11 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 ## Phase Rules
 
 ### plan
-1. Scan the codebase against the goal
-2. Build or refine the progress table (| # | Item | Execute | Review | Sample | Notes |)
-3. Completeness check: every aspect of the goal must map to at least one item; if gaps remain, keep refining
-4. When table covers the full goal, set current_phase: execute
+1. If execute_skills are provided, invoke them via Skill tool — let their workflow and principles inform how to decompose the goal
+2. Scan the codebase against the goal
+3. Build or refine the progress table (| # | Item | Execute | Review | Sample | Notes |) — if skills were invoked, align item granularity and ordering with the skill's workflow
+4. Completeness check: every aspect of the goal must map to at least one item; if gaps remain, keep refining
+5. When table covers the full goal, set current_phase: execute
 
 ### execute
 1. Pick next pending Execute item (lowest #), set to in_progress
