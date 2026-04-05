@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.0](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.2.0...v0.3.0) (2026-04-05)
+
+
+### Features
+
+* **plan:** invoke user-provided skills to guide task decomposition ([ddfbe7f](https://github.com/elct9620/claude-powerloop-plugin/commit/ddfbe7fbf8222377ff0ea27c6ce96e14ee65cf5c))
+
 ## [0.2.0](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.1.0...v0.2.0) (2026-04-04)
 
 
