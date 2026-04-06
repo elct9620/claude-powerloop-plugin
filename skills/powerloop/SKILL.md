@@ -20,6 +20,8 @@ Ask what the user wants to accomplish. Examples:
 - "Implement remaining features from SPEC.md"
 - "Convert all class components to function components"
 
+Rephrasing for clarity is fine, but do not drop qualifiers, scope constraints, or edge-case notes — these details affect how SubAgents make judgment calls later. If you need to condense, confirm the rewritten goal with the user before proceeding.
+
 Derive a short identifier from the goal for the progress file name (e.g., `REFACTOR`, `SPEC-IMPL`, `MIGRATE`).
 
 ### Step 2: Execution Approach
@@ -91,7 +93,7 @@ After confirmation, compose the scheduled prompt, show it to the user for review
 
 ### Compose the Scheduled Prompt
 
-Replace template variables (`<GOAL>`, `<NAME>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. Use this compact prompt template:
+Replace template variables (`<GOAL>`, `<NAME>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. `<GOAL>` may be rephrased for clarity but must retain all qualifiers, constraints, and conditions from the user's confirmed goal — oversimplification causes SubAgent decisions to drift. Use this compact prompt template:
 
 ```
 Read <NAME>.local.md for current phase and progress.
