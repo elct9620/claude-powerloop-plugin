@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.1](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.0...v0.3.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* **prompt:** prevent goal oversimplification in scheduled prompt generation ([8ece904](https://github.com/elct9620/claude-powerloop-plugin/commit/8ece904547e4fcfbc242267afe2f1b4a2e0b83f9))
+
 ## [0.3.0](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.2.0...v0.3.0) (2026-04-05)
 
 
