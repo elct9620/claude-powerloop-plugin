@@ -70,13 +70,14 @@ Present a complete summary for user approval:
   ── Review Phase ───────────────────────
   Skills:    <review skills>
   Batch:     2-3 items per scheduled cycle
-  Scanner:   SubAgent (Sonnet/Haiku) in parallel
+  Scanner:   Two-stage — Haiku (broad scan) → Sonnet (verify flagged items)
   Fixer:     SubAgent (Sonnet) — fixes applied, re-scanned next cycle
   Max cycles: 5 review cycles before pause
 
   ── Sample Phase ──────────────────────
   Pass target: <N>/<target> clean spot-checks
   Batch:       2-3 random items per cycle
+  Scanner:     Two-stage — Haiku (broad scan) → Sonnet (verify flagged items)
   Rule:        Counter freezes on failure, resumes after fix
   On complete: Auto-stop schedule
 
@@ -120,17 +121,20 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 
 ### review
 1. Pick 2-3 pending/failed Review items
-2. Spawn scanner SubAgents (Sonnet/Haiku) in parallel → each must report PASS or FAIL with specific issues
-3. PASS items → mark Review = done
-4. FAIL items → spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark Review = failed
-5. Track review_cycles in frontmatter; pause if > 5 — failed items are re-scanned in the next cycle to verify fixes
-6. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
+2. Stage 1 — Broad scan: spawn SubAgents (Haiku) in parallel for each item → quick check against review_skills criteria, report PASS or SUSPECT with brief notes
+3. Stage 2 — Verify: for each SUSPECT item, spawn SubAgent (Sonnet) to thoroughly inspect the flagged concerns → report PASS or FAIL with specific issues
+4. Items that pass both stages → mark Review = done
+5. FAIL items → spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark Review = failed
+6. Track review_cycles in frontmatter; pause if > 5 — failed items are re-scanned in the next cycle to verify fixes
+7. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
 
 ### sample
-1. Randomly pick 2-3 items, spawn scanner SubAgents (Sonnet/Haiku) → each must report PASS or FAIL with specific issues
-2. All PASS → increment sample_passes
-3. Any FAIL → freeze counter, spawn fixer SubAgent (Sonnet) to fix the reported issues, then mark Sample = failed — fixed items are re-scanned in the next cycle to verify
-4. When sample_passes reaches target → completed + CronDelete(cron_id)
+1. Randomly pick 2-3 items
+2. Stage 1 — Broad scan: spawn SubAgents (Haiku) for each item → quick check, report PASS or SUSPECT with brief notes
+3. Stage 2 — Verify: for each SUSPECT item, spawn SubAgent (Sonnet) to thoroughly inspect → report PASS or FAIL with specific issues
+4. All items pass both stages → increment sample_passes
+5. Any FAIL → freeze counter, spawn fixer SubAgent (Sonnet) to fix the reported issues, then mark Sample = failed — fixed items are re-scanned in the next cycle to verify
+6. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
 - STOP after processing one batch — do NOT continue to the next item or cycle. Update the .local.md file and wait for the next scheduled trigger.
