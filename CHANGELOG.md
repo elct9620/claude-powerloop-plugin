@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.1...v0.3.2) (2026-04-12)
+
+
+### Bug Fixes
+
+* **skill:** resolve inconsistencies in scheduled prompt, setup flow, and constraints ([a9041d7](https://github.com/elct9620/claude-powerloop-plugin/commit/a9041d7064269d93d634ac3757e788dd076a1c58))
+
 ## [0.3.1](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.0...v0.3.1) (2026-04-10)
 
 
