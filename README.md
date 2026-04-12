@@ -103,9 +103,7 @@ review_cycles: 1
 
 - **One batch per cycle** — execute processes 1 item, review/sample process 2-3 items, then stops until the next scheduled trigger
 - **SubAgent-driven** — the main session dispatches only; all code changes happen in SubAgents
-- **Failed items** retry automatically, skipped after 3 consecutive failures
-- **Review cap** — pauses after 5 review cycles to avoid infinite loops
-- **Auto-expiry** — schedules expire after 7 days if not completed
+- **Failed items** retry automatically, skipped after 3 consecutive failures (tracked in Notes column)
 
 ## Cancellation
 

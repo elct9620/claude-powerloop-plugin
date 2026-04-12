@@ -47,9 +47,13 @@ Ask the preferred interval between executions. Suggest `5m` as default. Support 
 Ask whether to enable the Sample phase and the pass target:
 - Default: enabled, 10 passes required
 - Allow customization: "How many consecutive passes required? (default: 10)"
-- Allow disabling: if the user only wants Plan → Execute → Review (auto-stop after Review completes)
+- Allow disabling: if the user only wants Plan → Execute → Review (auto-stop after Review completes; set `sample_passes: 0/0` in frontmatter)
 
-### Step 6: Confirmation
+### Step 6: Language
+
+Ask the user's preferred language for note content (progress table items, log entries, notes). Default: English. Preserve the user's original goal text in frontmatter without translation regardless of this setting.
+
+### Step 7: Confirmation
 
 Present a complete summary for user approval:
 
@@ -72,7 +76,6 @@ Present a complete summary for user approval:
   Batch:     2-3 items per scheduled cycle
   Scanner:   Two-stage — Haiku (broad scan) → Sonnet (verify flagged items)
   Fixer:     SubAgent (Sonnet) — fixes applied, re-scanned next cycle
-  Max cycles: 5 review cycles before pause
 
   ── Sample Phase ──────────────────────
   Pass target: <N>/<target> clean spot-checks
@@ -94,10 +97,10 @@ After confirmation, compose the scheduled prompt, show it to the user for review
 
 ### Compose the Scheduled Prompt
 
-Replace template variables (`<GOAL>`, `<NAME>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. `<GOAL>` may be rephrased for clarity but must retain all qualifiers, constraints, and conditions from the user's confirmed goal — oversimplification causes SubAgent decisions to drift. Use this compact prompt template:
+Replace template variables (`<DATE>`, `<name>`, `<GOAL>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. `<DATE>` is `YYYY-MM-DD` from `started_at`; `<name>` is the lowercase identifier. `<GOAL>` may be rephrased for clarity but must retain all qualifiers, constraints, and conditions from the user's confirmed goal — oversimplification causes SubAgent decisions to drift. Use this compact prompt template:
 
 ```
-Read .powerloop/<DATE>-<name>.note.md for current phase and progress.
+Read .powerloop/<DATE>-<name>.note.md for current phase, progress, and the latest Log Table entry's Handoff column for context from the previous cycle.
 
 Goal: <GOAL>
 Execute skills: <EXECUTE_SKILLS>
@@ -124,8 +127,8 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 2. Stage 1 — Broad scan: spawn SubAgents (Haiku) in parallel for each item → quick check against review_skills criteria, report PASS or SUSPECT with brief notes
 3. Stage 2 — Verify: for each SUSPECT item, spawn SubAgent (Sonnet) to thoroughly inspect the flagged concerns → report PASS or FAIL with specific issues
 4. Items that pass both stages → mark Review = done
-5. FAIL items → spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark Review = failed
-6. Track review_cycles in frontmatter; pause if > 5 — failed items are re-scanned in the next cycle to verify fixes
+5. FAIL items → spawn fixer SubAgent (Sonnet) with review_skills to fix the reported issues, then mark Review = failed — failed items are re-scanned in the next cycle to verify fixes
+6. Track review_cycles in frontmatter
 7. When ALL Review = done → if sample target > 0: set current_phase: sample, else: completed + CronDelete(cron_id)
 
 ### sample
@@ -140,8 +143,9 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 - STOP after processing one batch — do NOT continue to the next item or cycle. Update the .note.md file and wait for the next scheduled trigger.
 - Current session is dispatcher only — all work via SubAgents
 - One batch = execute: 1 item, review/sample: 2-3 items
-- Failed items retry next cycle, skip after 3 failures
+- Failed items retry next cycle, skip after 3 consecutive failures (track count in Notes column, e.g. "fail:2")
 - New discoveries: append rows with all statuses = pending
+- After each batch, append a row to the Log Table (Cycle | Phase | Summary | Decision | Handoff)
 ```
 
 ### Interval to Cron Conversion
@@ -182,7 +186,6 @@ Starting first cycle (Plan Phase) now...
 
 Cancel: CronDelete <cron_id>
 Auto-stop: after Sample Phase passes <target> times
-Expiry: auto-expires after 7 days if not completed
 ```
 
 Then immediately begin the Plan phase.
@@ -228,4 +231,4 @@ Append one row per cycle. Each entry serves as a handoff to the next cron trigge
 - **Decision** — judgment calls and their reasoning; leave empty for routine cycles
 - **Handoff** — what the next cycle needs to know: caveats, unfinished context, suggested approach
 
-Write progress table items, log entries, and notes in English by default. Preserve the user's original goal text in frontmatter without translation.
+Write progress table items, log entries, and notes in the language specified by the `language` frontmatter field. Preserve the user's original goal text in frontmatter without translation.
