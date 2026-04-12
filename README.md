@@ -54,11 +54,14 @@ Randomly spot-checks 2-3 items per cycle. Consecutive clean passes increment a c
 
 ## Progress tracking
 
-Progress is tracked in `<NAME>.local.md` files at the project root (git-ignored by convention). Example mid-execution state:
+Progress is tracked in `.powerloop/YYYY-MM-DD-<name>.note.md` files. Users can `.gitignore .powerloop/` to exclude them, or commit them to preserve the full execution history.
+
+Example mid-execution state:
 
 ```yaml
 ---
 goal: "Refactor all UI components to use new Design System"
+language: en
 current_phase: review
 started_at: 2026-04-04T10:00:00+08:00
 interval: 5m
@@ -76,6 +79,14 @@ review_cycles: 1
 | 3 | Unify Modal component API | done | pending | pending | |
 | 4 | Replace legacy Card | done | pending | pending | |
 | 5 | Update Sidebar navigation | done | pending | pending | Discovered during #2 |
+
+## Log
+
+| Cycle | Phase | Summary | Decision | Handoff |
+|-------|-------|---------|----------|---------|
+| 1 | plan | Decomposed into 4 items | Started from Button — deps first | |
+| 6 | execute | Transitioned to review | | #3 #4 share overlay pattern — review together |
+| 7 | review | #1 passed, #2 failed | Prioritized #2 fix — validation blocker | Nested form edge case untested — verify next cycle |
 ```
 
 ### Item statuses
@@ -104,7 +115,7 @@ To stop a running powerloop, delete the cron schedule:
 CronDelete <cron_id>
 ```
 
-The `cron_id` is stored in the `.local.md` progress file and displayed when the loop starts.
+The `cron_id` is stored in the `.note.md` progress file and displayed when the loop starts.
 
 ## Requirements
 

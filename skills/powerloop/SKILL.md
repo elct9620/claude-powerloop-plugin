@@ -22,7 +22,7 @@ Ask what the user wants to accomplish. Examples:
 
 Rephrasing for clarity is fine, but do not drop qualifiers, scope constraints, or edge-case notes — these details affect how SubAgents make judgment calls later. If you need to condense, confirm the rewritten goal with the user before proceeding.
 
-Derive a short identifier from the goal for the progress file name (e.g., `REFACTOR`, `SPEC-IMPL`, `MIGRATE`).
+Derive a short lowercase identifier from the goal for the progress file name (e.g., `refactor`, `spec-impl`, `migrate`).
 
 ### Step 2: Execution Approach
 
@@ -59,7 +59,7 @@ Present a complete summary for user approval:
 ═══════════════════════════════════════════
 
   Goal:          <goal>
-  Progress file: <NAME>.local.md
+  Progress file: .powerloop/<DATE>-<name>.note.md
   Interval:      <interval>
 
   ── Execute Phase ──────────────────────
@@ -97,7 +97,7 @@ After confirmation, compose the scheduled prompt, show it to the user for review
 Replace template variables (`<GOAL>`, `<NAME>`, `<EXECUTE_SKILLS>`, `<REVIEW_SKILLS>`, `<SAMPLE_TARGET>`) with the user's confirmed values. `<GOAL>` may be rephrased for clarity but must retain all qualifiers, constraints, and conditions from the user's confirmed goal — oversimplification causes SubAgent decisions to drift. Use this compact prompt template:
 
 ```
-Read <NAME>.local.md for current phase and progress.
+Read .powerloop/<DATE>-<name>.note.md for current phase and progress.
 
 Goal: <GOAL>
 Execute skills: <EXECUTE_SKILLS>
@@ -137,7 +137,7 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 6. When sample_passes reaches target → completed + CronDelete(cron_id)
 
 ## Constraints
-- STOP after processing one batch — do NOT continue to the next item or cycle. Update the .local.md file and wait for the next scheduled trigger.
+- STOP after processing one batch — do NOT continue to the next item or cycle. Update the .note.md file and wait for the next scheduled trigger.
 - Current session is dispatcher only — all work via SubAgents
 - One batch = execute: 1 item, review/sample: 2-3 items
 - Failed items retry next cycle, skip after 3 failures
@@ -176,7 +176,7 @@ powerloop started!
 
 Schedule ID: <cron_id>
 Cron: <cron expression> (every <interval>)
-Progress: <NAME>.local.md
+Progress: .powerloop/<DATE>-<name>.note.md
 
 Starting first cycle (Plan Phase) now...
 
@@ -189,15 +189,18 @@ Then immediately begin the Plan phase.
 
 ## Progress File Format
 
-Track progress in `<NAME>.local.md` at project root. The `.local.md` extension prevents accidental commits in target projects.
+Track progress in `.powerloop/YYYY-MM-DD-<name>.note.md` where `YYYY-MM-DD` is the start date and `<name>` is the lowercase identifier derived from the goal (e.g., `.powerloop/2026-04-12-refactor.note.md`). Create the `.powerloop/` directory if it does not exist.
 
-Refer to `examples/REFACTOR.local.md` for a complete mid-execution example.
+This directory-based approach lets users either `.gitignore .powerloop/` to exclude tracking files, or commit them to preserve the full execution history.
+
+Refer to `examples/2026-04-04-refactor.note.md` for a complete mid-execution example.
 
 ### Frontmatter Fields
 
 | Field | Description |
 |-------|-------------|
 | `goal` | The task objective |
+| `language` | Language for note content (default: `en`) |
 | `current_phase` | `plan` / `execute` / `review` / `sample` / `completed` |
 | `started_at` | ISO 8601 timestamp |
 | `interval` | Cron interval |
@@ -207,10 +210,22 @@ Refer to `examples/REFACTOR.local.md` for a complete mid-execution example.
 | `sample_passes` | `M/N` counter (current/target) |
 | `review_cycles` | Number of completed review rounds |
 
-### Status Values
+### Progress Table
 
-- `pending` — not started
-- `in_progress` — currently being worked on
-- `done` — completed
-- `failed` — needs retry
-- `skipped` — intentionally skipped (reason in Notes)
+| # | Item | Execute | Review | Sample | Notes |
+|---|------|---------|--------|--------|-------|
+
+Status values: `pending`, `in_progress`, `done`, `failed` (retry next cycle), `skipped` (reason in Notes).
+
+### Log Table
+
+Append one row per cycle. Each entry serves as a handoff to the next cron trigger — a fresh conversation that reads this file as its only context.
+
+| Cycle | Phase | Summary | Decision | Handoff |
+|-------|-------|---------|----------|---------|
+
+- **Summary** — what happened this cycle, brief factual record
+- **Decision** — judgment calls and their reasoning; leave empty for routine cycles
+- **Handoff** — what the next cycle needs to know: caveats, unfinished context, suggested approach
+
+Write progress table items, log entries, and notes in English by default. Preserve the user's original goal text in frontmatter without translation.
