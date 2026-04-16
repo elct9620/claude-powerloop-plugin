@@ -145,6 +145,7 @@ Sample rule: 0/<SAMPLE_TARGET> — increment on clean run, freeze on failure
 - One batch = execute: 1 item, review/sample: 2-3 items
 - Failed items retry next cycle, skip after 3 consecutive failures (track count in Notes column, e.g. "fail:2")
 - New discoveries: append rows with all statuses = pending
+- After each batch, update the progress table: set processed items' status to done/failed and update current_phase in frontmatter if phase transition conditions are met
 - After each batch, append a row to the Log Table (Cycle | Phase | Summary | Decision | Handoff)
 ```
 
