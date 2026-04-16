@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.3](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.2...v0.3.3) (2026-04-16)
+
+
+### Bug Fixes
+
+* **skill:** add explicit constraint for progress table status updates ([e67db79](https://github.com/elct9620/claude-powerloop-plugin/commit/e67db79b043380b92f1308b4dd6539409cb93755))
+
 ## [0.3.2](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.1...v0.3.2) (2026-04-12)
 
 
