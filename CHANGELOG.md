@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.0](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.3...v0.4.0) (2026-04-25)
+
+
+### Features
+
+* **review:** introduce blind review mechanism for review/sample phases ([51cc2fb](https://github.com/elct9620/claude-powerloop-plugin/commit/51cc2fb32c6319ff6d8fa65d8650be06c96a8866))
+
 ## [0.3.3](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.2...v0.3.3) (2026-04-16)
 
 
