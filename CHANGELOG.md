@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.4.0...v0.4.1) (2026-05-08)
+
+
+### Bug Fixes
+
+* **skill:** require explicit Skill tool invocation in dispatch prompts ([8f6af68](https://github.com/elct9620/claude-powerloop-plugin/commit/8f6af685d1cbee6b19bb767d826718e5dbcf2c3d))
+
 ## [0.4.0](https://github.com/elct9620/claude-powerloop-plugin/compare/v0.3.3...v0.4.0) (2026-04-25)
 
 
